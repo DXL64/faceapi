@@ -1,11 +1,12 @@
 pipeline {
-    agent { docker { image 'python:3.9' } }
+    agent { any }
 
     stages {
         stage('build face api') {
             steps {
                 echo 'Building face api..'
-                sh 'bash setup/api.build.sh'
+                sh '[ -n "$(docker images -q face-api:v1.0)" ] || bash setup/api.build.sh'
+                sh 'bash setup/build_delivery.sh' 
             }
         }
 
