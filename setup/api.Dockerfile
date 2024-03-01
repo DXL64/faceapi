@@ -1,26 +1,35 @@
-FROM ubuntu:20.04 as base
-ENV TZ="Asia/Ho_Chi_Minh"
+FROM ubuntu:18.04 as base
 
+# Working directory
 WORKDIR /opt/vinbigdata/service-api
 
-COPY setup/conda_environment.yml /tmp/environment.yml
+# Copy env file to docker
+COPY /conda_env.yml /tmp/environment.yml
 
-COPY setup/environment.yml \
-    app/logging.conf \
-    app/main.py \
-    /opt/vinbigdata/service-api/
-
+# Install miniconda and create environment faceapi from env file
 SHELL ["/bin/bash", "-c"]
 
 ARG CONDA_DIR="/opt/conda"
 ENV PATH=$CONDA_DIR/bin:$PATH
-RUN apt-get update && apt-get install wget mysql-client gcc ffmpeg libsm6 libxext6 -y
+RUN  apt-get update \
+        && apt-get install wget gcc -y
 RUN mkdir -p /tmp && wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.12.0-Linux-x86_64.sh -O /tmp/miniconda.sh
-RUN bash /tmp/miniconda.sh -b -p $CONDA_DIR
+RUN /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR &&\
+    rm /tmp/miniconda.sh
 RUN conda init
 RUN conda config --set auto_activate_base false
 RUN conda env create -f /tmp/environment.yml
-RUN tar -czvf /tmp/vinfast111_env.tar.gz /opt/conda/envs/vinfast111
+
+# Copy app to docker
+COPY /app/ /opt/vinbigdata/service-api/app
+
+ENV CONFIG="app/config.json"
+
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "faceapi", "/bin/bash", "-c"]
+
+# ENTRYPOINT ["/bin/bash", "-l", "-c"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "faceapi", "python", "app/main.py"]
 
 # FROM base as base_build
 # COPY app /tmp/app/
