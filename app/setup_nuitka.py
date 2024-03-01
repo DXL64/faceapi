@@ -16,6 +16,7 @@ source_path = sys.argv[1]
 print(source_path)
 dst = "shared"
 stage_dir = "tmp"
+optim = "-O0 -ggdb"
 if os.path.exists(dst):
     shutil.rmtree(dst)
 os.makedirs(dst, True)

@@ -18,7 +18,7 @@ RUN /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR &&\
     rm /tmp/miniconda.sh
 RUN conda init
 RUN conda config --set auto_activate_base false
-RUN conda env create -f /tmp/environment.yml
+RUN conda env create -f /tmp/	.yml
 
 # Copy app to docker
 COPY /app/ /opt/vinbigdata/service-api/app

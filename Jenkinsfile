@@ -18,7 +18,7 @@ pipeline {
 
         stage('deploy face api') {
             steps {
-                 sh 'Deploy face api..'
+                 echo 'Deploy face api..'
             }
         }
     }
