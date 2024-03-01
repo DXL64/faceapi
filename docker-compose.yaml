@@ -1,0 +1,37 @@
+version: '3.6'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_dev
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=123456aA@
+      - POSTGRES_DB=faceid
+    ports:
+      - 5432:5432
+    volumes:
+      - ./database/postgres_init.sql:/docker-entrypoint-initdb.d/file.sql
+      - ./test/postgresql:/var/lib/postgresql
+
+  milvus:
+    image: milvusdb/milvus:1.1.1-cpu-d061621-330cc6
+    container_name: milvus_dev
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+    cpuset: "1"
+    ports:
+      - 19530:19530
+      - 19121:19121
+    volumes:
+      - ./test/milvus/db:/var/lib/milvus/db
+      - ./test/milvus/conf:/var/lib/milvus/conf
+      - ./test/milvus/logs:/var/lib/milvus/logs
+      - ./test/milvus/wal:/var/lib/milvus/wal
+
+networks:
+  default:
+    name: faceid_nw

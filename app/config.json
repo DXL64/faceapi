@@ -1,0 +1,54 @@
+{
+    "devconfig": {
+        "upload_token_config": {
+            "api_get_upload_token": "http://dev-dreamcity.vinhomes.vn/api/iam/v0/oauth/token",
+            "api_get_enroll_token": "http://dev-dreamcity.vinhomes.vn/api/iam/v0/oauth/token",
+            "api_upload_event": "https://dev-dreamcity.vinhomes.vn/api/storage/v0/libraries/upload",
+            "client_id_authen": "deadbeef-dead-beef-dead-beefdeadbeef",
+            "client_secret_authen": "25eb33eb-4780-4158-955b-f8caa4be3212",
+            "upload_timeout": 20
+        },
+        "secret_token": "Ub86vFIxAzuk+^2Qz5e7vrbRUQCk*jAS",
+        "minio": {
+            "minio_host": null,
+            "minio_port": null,
+            "minio_access_key": null,
+            "minio_secret_key": null,
+            "minio_bucket": null,
+            "minio_endpoint_url": null,
+            "minio_public_endpoint_url": null
+        },
+        "milvus": {
+            "milvus_host": "localhost",
+            "milvus_port": "19530",
+            "milvus_collection_name": "faceid"
+        },
+        "postgresql": {
+            "postgresql_db_host": "10.124.69.64",
+            "postgresql_db_port": "5432",
+            "postgresql_db_name": "faceid",
+            "postgresql_db_user": "root",
+            "postgresql_db_password": "123456aA@",
+            "postgresql_schema_name": "faceid_dev"
+        },
+        "model_serving": {
+            "face_enroll_threshold": 0.5,
+            "face_enroll_threshold_milvus": 0.55,
+            "face_matching_threshold": 0.43,
+            "face_detection_threshold": 0.5,
+            "face_size": 100,
+            "url": "localhost:8801"
+        },
+        "service": {
+            "enable_model_serving": true,
+            "enable_api": true,
+            "enable_milvus": true
+        }, 
+        "system": {
+            "port_api": 42000, 
+            "enroll_images_limit": 20,
+            "workers": 8
+        }
+    }
+}
+

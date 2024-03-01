@@ -1,0 +1,51 @@
+version: "3.6"
+services:
+        #vinfast-surveilance-mysqldb:
+        #  image: mysql:latest
+        #  container_name: vinfast-mysqldb
+        #  ports:
+        #    - "3307:3306"
+        #  command: --init-file /data/application/init.sql --default-authentication-plugin=mysql_native_password
+        #  volumes:
+        #    - ./assets/database/vf-surveillance.sql:/data/application/init.sql
+        #    - ../test/dir_test/mysql:/var/lib/mysql
+        #  environment:
+        #    MYSQL_ROOT_USER: root
+        #    MYSQL_ROOT_PASSWORD: 123456aA@
+        #    MYSQL_DATABASE: vinfast_faceid
+
+        #vinfast-surveilance-minio:
+        #  image: minio/minio
+        #  container_name: vinfast-minio
+        #  ports:
+        #    - "19000:9000"
+        #    - "19001:9001"
+        #  volumes:
+        #    - /vinfast_minio:/data
+        #  environment:
+        #    MINIO_ROOT_USER: vinfast
+        #    MINIO_ROOT_PASSWORD: 123456aA@
+        #  command: server --console-address ":9001" /data
+
+  milvus_cpu_1.1.1:
+    image: milvusdb/milvus:1.1.1-cpu-d061621-330cc6
+    container_name: milvus_1.1.1
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+    cpuset: "1"
+    ports:
+      - "19534:19530"
+      - "19124:19121"
+    volumes:
+      - ../test/dir_test/milvus/db:/var/lib/milvus/db
+      - ../test/dir_test/milvus/conf:/var/lib/milvus/conf
+      - ../test/dir_test/milvus/logs:/var/lib/milvus/logs
+      - ../test/dir_test/milvus/wal:/var/lib/milvus/wal
+
+
+networks:
+  default:
+    name: vinfast-surveilance
