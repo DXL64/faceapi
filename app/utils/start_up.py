@@ -12,14 +12,9 @@ settings = Settings()
 logger = logging.getLogger(__name__)
 
 def start_up():
-    # try:
-    #     milvus_client = MilvusClient(wait_timeout=5,max_retry=10)
-    # except Exception as e:
-    #     logger.info("can not connect to milvus at startup : ",str(e))
-    #     return 
     while not MilvusClient.state:
         time.sleep(1)
-    logger.info("restoring... milvus at startup !!!")
+    logger.info("Restoring... milvus at startup !!!")
     db = get_db_connection()
     milvus_client = MilvusClient()
     milvus_client.reinit()
@@ -41,7 +36,7 @@ def start_up():
         logger.info(f"Database face: {len(embs)} - current {milvus_client.get_number_entities()}")
     except:
         traceback.print_exc()
-        logger.info("restore milvus failure !!!")
+        logger.info("Restore milvus failure !!!")
     finally:
         db.close()
-    logger.info("restore milvus success !!!")
+    logger.info("Restore milvus success !!!")

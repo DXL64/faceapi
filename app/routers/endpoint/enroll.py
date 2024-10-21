@@ -60,7 +60,7 @@ async def enroll(item: EnrollRequest):
     
     start = time.time()
     milvus_client = MilvusClient()
-    logger.info(f"milvus init time: {time.time() - start} {member_type}")
+    logger.info(f"Milvus init time: {time.time() - start} {member_type}")
 
     face_extractor = FaceExtractor()
     db = get_db_connection()
@@ -73,7 +73,6 @@ async def enroll(item: EnrollRequest):
         minio_is_work = False
         logger.error(f"Minio is not working!")
     
-    # list_img_bytes = [minio_client.load_obj(img_url) for img_url in imagesUrls]  
     list_img_bytes = []
     url_exceptions = []
     old_milvus_data = []

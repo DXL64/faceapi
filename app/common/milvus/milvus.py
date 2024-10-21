@@ -31,7 +31,6 @@ _TOPK = 1
 
 class MilvusFaceIDObject(BaseModel):
     face_id: int
-    localUserId: int
     embeddings: Any
 
 

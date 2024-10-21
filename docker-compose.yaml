@@ -28,7 +28,7 @@ services:
       - 19121:19121
     volumes:
       - ./test/milvus/db:/var/lib/milvus/db
-      - ./test/milvus/conf:/var/lib/milvus/conf
+      # - ./test/milvus/conf:/var/lib/milvus/conf
       - ./test/milvus/logs:/var/lib/milvus/logs
       - ./test/milvus/wal:/var/lib/milvus/wal
 

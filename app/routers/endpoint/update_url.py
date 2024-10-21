@@ -33,7 +33,7 @@ async def update_url(userId: str, item: UpdateRequestImageUrls):
     response = BaseResponse()
     start = time.time()
     milvus_client = MilvusClient()
-    logger.info(f"milvus init time: {time.time() - start}")
+    logger.info(f"Milvus init time: {time.time() - start}")
 
     face_extractor = FaceExtractor()
     face_ids = []

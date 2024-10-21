@@ -23,10 +23,7 @@ settings = Settings()
 logger = logging.getLogger(__name__)
 timing_log = TimingLog()
 
-
-
 # Search User By Face
-# @router.put("/searchRelativeFace/")
 async def search_user_by_face(item: SearchFaceRequest):
     response = BaseResponse()
     milvus_client = MilvusClient()
@@ -56,7 +53,7 @@ async def search_user_by_face(item: SearchFaceRequest):
         for matching_face in matching_faces:
             if len(localUserIds) == item.numberRecords:
                 break
-            faceid = crud.get_face_by_id(db, matching_face.id)
+            faceid = crud.get_face_by_id(db, matching_face.faceId)
             localUserId = faceid.localUserId
             if localUserId not in localUserIds:
                 dossier = crud.get_dossier_by_id(db, localUserId)

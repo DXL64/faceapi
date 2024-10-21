@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 timing_log = TimingLog()
 
 # Update localUserId
-# @router.put("/local/{localUserId}")
 async def update_localUserId(localUserId: int, item: UpdateRequest):
     db = get_db_connection()
     response = BaseResponse()

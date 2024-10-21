@@ -25,7 +25,7 @@ class BaseRequest(BaseModel):
     pass
 
 
-class EnrollRequest(BaseRequest):
+class UploadRequest(BaseRequest):
     userId: Optional[str]
     credential: Optional[str]
     name: Optional[str]
@@ -37,7 +37,6 @@ class EnrollRequest(BaseRequest):
     lastUpdate: Optional[int]
     isForceUpdate: Optional[bool]
 
-    ## required by QC 
     def precheck(self):
         list_exceptions = []
         if self.imageUrls is None or len(self.imageUrls) == 0 :

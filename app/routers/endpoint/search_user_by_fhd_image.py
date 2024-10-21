@@ -105,9 +105,6 @@ async def search_user_by_fhd_image(item: SearchFaceFHDRequest):
         time_str = datetime.now().strftime("%Y%m%d")
         event_path = f"event/{time_str}/{uuid_str}.jpg"
         img_encode = cv2.imencode(".jpg", cv2_img)[1].tostring()
-        # cv2.imwrite("test.jpg",cv2_img)
-        ## upload to vf-storage instead of minio
-        # upload_response = upload_by_vhm_api(event_path, img_encode)
 
         logging.info("Uploading to vf-storage ...")
         upload_response = pool.apply_async(upload_by_vhm_api, args=(event_path, img_encode,)).get(timeout=settings.UPLOAD_TIMEOUT)
