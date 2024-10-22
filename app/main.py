@@ -42,6 +42,18 @@ async def log_requests(request: Request, call_next):
 async def root():
     return {f"message": f"Face Service API"}
 
+def receive_signal(signalNumber, frame):
+    print('Received:', signalNumber)
+    import sys
+    sys.exit()
+
+
+@app.on_event("startup")
+async def startup_event():
+    import signal
+    signal.signal(signal.SIGINT, receive_signal)
+    # startup tasks
+
 
 if __name__ == '__main__':
     start_up()

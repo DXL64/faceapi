@@ -30,7 +30,7 @@ async def search_user_by_face(item: SearchFaceRequest):
     extractor = FaceExtractor()
     db = get_db_connection()
 
-    # logger.info(f"Request {response.request_id}: {item}")
+    logger.info(f"Request {response.request_id}: {item}")
 
     try:
         res = requests.get(item.imageUrl)
@@ -40,7 +40,7 @@ async def search_user_by_face(item: SearchFaceRequest):
         img_bytes = res.content
         face_embeddings, _ = extractor.extract_feature_batch([img_bytes], [item.imageUrl])
 
-        matching_faces = milvus_client.search_topK_face(face_embeddings, topK=item.numberRecords * 10)[0]
+        matching_faces = milvus_client.search_topK_face(face_embeddings, topK=item.numberRecords)[0]
         if (not matching_faces) or (matching_faces[0] == -1):
             response.data = [
                 {
@@ -49,18 +49,10 @@ async def search_user_by_face(item: SearchFaceRequest):
             ]
             raise Exception("Searching in Milvus failed, please restart service and retry again!!")
         response.data = []
-        localUserIds = set()
+        
         for matching_face in matching_faces:
-            if len(localUserIds) == item.numberRecords:
-                break
-            faceid = crud.get_face_by_id(db, matching_face.faceId)
-            localUserId = faceid.localUserId
-            if localUserId not in localUserIds:
-                dossier = crud.get_dossier_by_id(db, localUserId)
-                del dossier["vectors"]
-                dossier["score"] = matching_face.distance
-                response.data.append(dossier)
-                localUserIds.add(localUserId)
+            face = crud.get_face_by_id(db, str(matching_face.id))
+            response.data.append(face)
         response.code = ResponseCode.SUCCESSFUL
     except Exception as e:
         traceback.print_exc()

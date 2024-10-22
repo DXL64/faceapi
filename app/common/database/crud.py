@@ -23,12 +23,13 @@ def create_face(db: Session, **kwargs) -> models.Face:
     """
     data = {
         'faceId': kwargs.get('faceId'),
-        'bbox_x': kwargs.get('bbox_x'),
-        'bbox_y': kwargs.get('bbox_y'),
-        'bbox_w': kwargs.get('bbox_w'),
-        'bbox_h': kwargs.get('bbox_h'),
+        # 'bbox_x': kwargs.get('bbox_x'),
+        # 'bbox_y': kwargs.get('bbox_y'),
+        # 'bbox_w': kwargs.get('bbox_w'),
+        # 'bbox_h': kwargs.get('bbox_h'),
         'face_embedding': kwargs.get('face_embedding', None),
         'original_photo': kwargs.get('original_photo'),
+        'norm_photo': kwargs.get('norm_photo'),
         'lastUpdate': datetime.now()
     }
     face = Face(**data)

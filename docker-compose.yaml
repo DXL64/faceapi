@@ -12,26 +12,19 @@ services:
       - 5432:5432
     volumes:
       - ./database/postgres_init.sql:/docker-entrypoint-initdb.d/file.sql
-      - ./test/postgresql:/var/lib/postgresql
+      - ./data/postgresql:/var/lib/postgresql
 
   milvus:
     image: milvusdb/milvus:1.1.1-cpu-d061621-330cc6
     container_name: milvus_dev
+    network_mode: "host"
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: "1"
-    cpuset: "1"
     ports:
       - 19530:19530
       - 19121:19121
     volumes:
-      - ./test/milvus/db:/var/lib/milvus/db
-      # - ./test/milvus/conf:/var/lib/milvus/conf
-      - ./test/milvus/logs:/var/lib/milvus/logs
-      - ./test/milvus/wal:/var/lib/milvus/wal
-
-networks:
-  default:
-    name: faceid_nw
+      - ./server_config.yaml:/var/lib/milvus/conf/server_config.yaml
+      - ./data/milvus/db:/var/lib/milvus/db
+      - ./data/milvus/conf:/var/lib/milvus/conf
+      - ./data/milvus/logs:/var/lib/milvus/logs
+      - ./data/milvus/wal:/var/lib/milvus/wal

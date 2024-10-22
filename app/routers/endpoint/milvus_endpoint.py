@@ -88,13 +88,12 @@ async def restore_milvus():
     try:
         embs = []
         face_ids = []
-        list_dossiers = db.query(models.Dossier).all()
-        for user in list_dossiers:
-            for face in user.faces:
-                face_embedding = base64.b64decode(face.face_embedding)
-                face_embedding = np.frombuffer(face_embedding, np.float32).tolist()
-                embs.append(face_embedding)
-                face_ids.append(face.id)
+        list_faces = db.query(models.Face).all()
+        for face in list_faces:
+            face_embedding = base64.b64decode(face.face_embedding)
+            face_embedding = np.frombuffer(face_embedding, np.float32).tolist()
+            embs.append(face_embedding)
+            face_ids.append(int(face.faceId))
 
         for i in range(0, len(face_ids), 10000):
             milvus_client.client.insert(settings.MILVUS_COLLECTION_NAME, records=embs[i:i+10000], ids=face_ids[i:i+10000])

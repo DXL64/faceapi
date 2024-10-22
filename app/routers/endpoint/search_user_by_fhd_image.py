@@ -15,7 +15,6 @@ from common.ai_pipelines.FaceExtractor import FaceExtractor, MultipleFaceExcepti
 from common.milvus.milvus import MilvusClient
 from common.database import crud, models
 from common.database.database import engine, get_db_connection
-from common.vhm_api.upload import upload_by_vhm_api
 from configs.configs import Settings
 from ..api_response_schemas import ResponseCode, ResponseMessage, MultipleUrlExceptions, UrlException, SearchFaceResponse
 from ..api_request_schemas import MultipleBadField, SearchFaceFHDRequest
@@ -55,7 +54,6 @@ async def search_user_by_fhd_image(item: SearchFaceFHDRequest):
             raise MultipleUrlExceptions([UrlException(f"{item.imageUrl} invalid!", item.imageUrl)])
 
         img_bytes = res.content
-        # rois = [[x + settings.PADDING_PIXEL for x in sublist] for sublist in item.rois]
 
         cv2_img, face_embeddings, bboxes, ROIs = extractor.extract_feature2(img_bytes, item.rois)
 
@@ -107,7 +105,7 @@ async def search_user_by_fhd_image(item: SearchFaceFHDRequest):
         img_encode = cv2.imencode(".jpg", cv2_img)[1].tostring()
 
         logging.info("Uploading to vf-storage ...")
-        upload_response = pool.apply_async(upload_by_vhm_api, args=(event_path, img_encode,)).get(timeout=settings.UPLOAD_TIMEOUT)
+        # upload_response = pool.apply_async(upload_by_vhm_api, args=(event_path, img_encode,)).get(timeout=settings.UPLOAD_TIMEOUT)
         logging.info(f"UPLOAD_RESPONSE: {upload_response}")
         if upload_response.get("code", None) != 200:
             raise UrlException("Upload fail", "")

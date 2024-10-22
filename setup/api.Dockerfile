@@ -1,48 +1,33 @@
-FROM ubuntu:18.04 as base
+FROM ubuntu:20.04 as base
+ENV TZ="Asia/Ho_Chi_Minh"
 
-# Working directory
-WORKDIR /opt/vinbigdata/service-api
+WORKDIR /opt/faceapi/service-api
 
-# Copy env file to docker
-COPY /conda_env.yml /tmp/environment.yml
+COPY conda_env.yml /tmp/environment.yml
 
-# Install miniconda and create environment faceapi from env file
+VOLUME ./app/ /opt/faceapi/service-api/
+
 SHELL ["/bin/bash", "-c"]
 
 ARG CONDA_DIR="/opt/conda"
 ENV PATH=$CONDA_DIR/bin:$PATH
-RUN  apt-get update \
-        && apt-get install wget gcc -y
+RUN apt-get update && apt-get install wget mysql-client gcc ffmpeg libsm6 libxext6 -y
 RUN mkdir -p /tmp && wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.12.0-Linux-x86_64.sh -O /tmp/miniconda.sh
-RUN /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR &&\
-    rm /tmp/miniconda.sh
+RUN bash /tmp/miniconda.sh -b -p $CONDA_DIR
 RUN conda init
 RUN conda config --set auto_activate_base false
-RUN conda env create -f /tmp/	.yml
+RUN conda env create -f /tmp/environment.yml
+
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 
 # Copy app to docker
-COPY /app/ /opt/vinbigdata/service-api/app
+# COPY /app/ /opt/vinbigdata/service-api/app
 
-ENV CONFIG="app/config.json"
+# ENV CONFIG="app/config.json"
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "faceapi", "/bin/bash", "-c"]
+# SHELL ["conda", "run", "-n", "faceapi", "/bin/bash", "-c"]
 
 # ENTRYPOINT ["/bin/bash", "-l", "-c"]
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "faceapi", "python", "app/main.py"]
-
-# FROM base as base_build
-# COPY app /tmp/app/
-# WORKDIR /tmp/app
-# RUN  conda run --no-capture-output -n vinfast111 python setup_nuitka.py /tmp/app
-# RUN  conda run --no-capture-output -n vinfast111 python setup_cython.py build_ext
-# RUN  cp -r build/lib.linux-x86_64-cpython-39/shared/* shared/ && \
-#     cd shared && tar -czvf ../shared.tar.gz *
-
-# FROM base
-# ENV PYTHONPATH=/opt/conda/envs/vinfast/lib/vbdi
-# COPY --from=base_build \
-#     /tmp/app/shared.tar.gz \
-#     /tmp/
-# RUN mkdir -p /opt/conda/envs/vinfast/lib/vbdi && \
-#     tar -xzvf /tmp/shared.tar.gz -C /opt/conda/envs/vinfast/lib/vbdi
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "faceapi", "python", "app/main.py"]

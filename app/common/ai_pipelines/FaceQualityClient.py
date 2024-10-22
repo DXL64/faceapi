@@ -1,6 +1,6 @@
 import numpy as np
 
-from .BaseClient import BaseClient
+from BaseClient import BaseClient
 
 
 class FaceQualityClient(BaseClient):

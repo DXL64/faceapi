@@ -1,6 +1,5 @@
 import uuid
 
-
 class BaseResponse:
     request_id: str
     code: int
@@ -11,9 +10,9 @@ class BaseResponse:
         self.request_id = uuid.uuid4()
 
 
-class EnrollResponse(BaseResponse):
+class UploadResponse(BaseResponse):
     def __init__(self):
-        super(EnrollResponse, self).__init__()
+        super(UploadResponse, self).__init__()
 
 
 class SearchFaceResponse(BaseResponse):

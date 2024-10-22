@@ -3,9 +3,10 @@ import time
 import traceback
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from milvus import Milvus, MetricType, IndexType
 from milvus.client.exceptions import NotConnectError
+import uuid
 
 from configs.configs import Settings
 #from .configs import _HOST, _PORT, _COLLECTION_NAME, _NPROBE, _NDIMS, _NLIST
@@ -30,7 +31,7 @@ _TOPK = 1
 
 
 class MilvusFaceIDObject(BaseModel):
-    face_id: int
+    face_id: Any
     embeddings: Any
 
 
@@ -79,7 +80,7 @@ class MilvusClient:
             except Exception as e:
                 if isinstance(e, NotConnectError):
                     retry -= 1
-
+    
     def search_topK_face(self, embedding_vectors, topK=1):
         try:
             search_params = {
@@ -105,15 +106,14 @@ class MilvusClient:
     def insert_face(self, face: MilvusFaceIDObject = None):
         try:
             face_data = [face.embeddings.tolist()]
-            face_ids = [face.face_id]
             start = time.time()
-            self.client.insert(_COLLECTION_NAME, records=face_data, ids=face_ids)
+            status, ids = self.client.insert(_COLLECTION_NAME, records=face_data)
             self.client.flush([_COLLECTION_NAME])
             logger.info(time.time() - start)
-            return True
+            return ids
         except Exception as e:
             logger.error(f"Error occurred when insert face to milvus! {e}")
-            return False
+            return 0
     
     def get_number_entities(self):
         return self.client.count_entities(self.collection_name)[1]
@@ -131,11 +131,12 @@ class MilvusClient:
         param = {
             'collection_name': _COLLECTION_NAME,
             'dimension': _NDIMS,
-            'metric_type': MetricType.IP  # optional
+            'metric_type': MetricType.IP,  # optional
+            'auto_id': True
         }
 
         index_param = {
-                    'nlist': _NLIST
+            'nlist': _NLIST
         }
         self.client.create_collection(param)
         self.client.create_index(_COLLECTION_NAME, IndexType.FLAT, index_param)

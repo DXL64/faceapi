@@ -10,13 +10,6 @@ class FaceAlignment:
         self.similarity_transform = trans.SimilarityTransform()
 
     def __call__(self, image, bbox, landmarks) -> np.ndarray:
-        r"""
-        Args:
-            bbox (np.array): Shape (5, ), i.e. (x1, y1, x2, y2, score) of selected box
-            landmarks (np.array): Shape (5, 2), i.e. (x, y) of face landmarks
-        Returns:
-            is_straight_face (bool): Whether the face is straight or not
-        """
         self.similarity_transform.estimate(landmarks, self.standard_landmarks)
         transformation_matrix = self.similarity_transform.params[0:2, :]
         if transformation_matrix is None:

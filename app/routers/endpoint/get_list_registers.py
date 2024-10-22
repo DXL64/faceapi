@@ -24,7 +24,6 @@ async def get_list_registers(item: ListRegisterRequest):
     response = BaseResponse()
 
     current_time_ms = datetime.timestamp(datetime.now()) * 1e3
-    # print(current_time_ms)
     response.code = ResponseCode.SUCCESSFUL
     if lastTimeRequest > current_time_ms:
         response.code = ResponseCode.INVALID_REQUEST_TIME
@@ -32,7 +31,7 @@ async def get_list_registers(item: ListRegisterRequest):
             "time": current_time_ms
         }
     else:
-        results = crud.get_dossier_list_with_last_update_time(db,lastTimeRequest)
+        results = crud.get_face_list(db)
         response.data = results
     
     response.message = ResponseMessage(response.code)

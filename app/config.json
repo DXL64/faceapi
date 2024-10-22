@@ -19,17 +19,17 @@
             "minio_public_endpoint_url": null
         },
         "milvus": {
-            "milvus_host": "localhost",
+            "milvus_host": "0.0.0.0",
             "milvus_port": "19530",
             "milvus_collection_name": "faceid"
         },
         "postgresql": {
-            "postgresql_db_host": "10.124.69.64",
+            "postgresql_db_host": "0.0.0.0",
             "postgresql_db_port": "5432",
             "postgresql_db_name": "faceid",
             "postgresql_db_user": "root",
             "postgresql_db_password": "123456aA@",
-            "postgresql_schema_name": "faceid_dev"
+            "postgresql_schema_name": "face"
         },
         "model_serving": {
             "face_enroll_threshold": 0.5,

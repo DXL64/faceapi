@@ -26,16 +26,7 @@ class BaseRequest(BaseModel):
 
 
 class UploadRequest(BaseRequest):
-    userId: Optional[str]
-    credential: Optional[str]
-    name: Optional[str]
-    description: Optional[str]
-    department: Optional[str]
-    type: Optional[str]
     imageUrls: list[str]
-    expired: Optional[int]
-    lastUpdate: Optional[int]
-    isForceUpdate: Optional[bool]
 
     def precheck(self):
         list_exceptions = []
@@ -48,64 +39,12 @@ class UploadRequest(BaseRequest):
         if len(check_duplicate) > 0 : 
             list_exceptions.append(BadField(check_duplicate))
 
-        if self.userId is None: 
-            list_exceptions.append(BadField(f"userId is required!"))
-        else :
-            self.userId = self.userId.strip()
-            if len(self.userId) == 0:
-                list_exceptions.append(BadField(f"userId is required!"))
-            elif len(self.userId) > 128:
-                list_exceptions.append(BadField(f"length of userId is invalid!"))
-
-        if self.credential is not None:
-            self.credential = self.credential.strip()
-            if len(self.credential) == 0:
-                self.credential = None
-            elif len(self.credential) > 12:
-                list_exceptions.append(BadField(f"length of credential is invalid!"))
-
-
-        if self.type is not None:
-            if len(self.type) > 15: 
-                list_exceptions.append(BadField(f"length of type is invalid!"))
-            elif len(self.type) == 0: 
-                self.type = None
-
-
-        if self.name is not None: 
-            self.name = self.name.strip()
-            if len(self.name) > 255:
-                list_exceptions.append(BadField(f"length of name is invalid!"))
-            elif len(self.name) == 0: 
-                self.name = None
-
-        
-        if self.description is not None:
-            self.description = self.description.strip()
-            if len(self.description) > 255:
-                list_exceptions.append(BadField(f"length of description is invalid!"))
-            elif len(self.description) == 0:
-                self.description = None
-        
-        if self.department is not None:
-            self.department = self.department.strip()
-            if len(self.department) > 255:
-                list_exceptions.append(BadField(f"length of department is invalid!"))
-            elif len(self.department) == 0:
-                self.department = None
-
-        if self.isForceUpdate is None:
-            list_exceptions.append(BadField(f"isForceUpdate is required!"))
-
-        if self.expired is None:
-            self.expired = 1
-
         if len(list_exceptions) > 0:
             raise MultipleBadField(list_exceptions)
 
 
 class UpdateRequest(BaseRequest):
-    userId: Optional[str]
+    faceId: Optional[str]
     credential: Optional[str]
     name: Optional[str]
     description: Optional[str]

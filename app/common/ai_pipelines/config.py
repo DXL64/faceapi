@@ -6,10 +6,11 @@ __all__ = ["SCRFD_CONFIG", "FACEID_CONFIG", "FACE_ALIGN_CONFIG", "FACE_QUALITY_C
 settings = Settings()
 
 SCRFD_CONFIG = {
-    "url": settings.TRITON_URL,
-    "model_name": "scrfd_2.5g",
+    "model_name": "scrfd",
+    "model_path": "/opt/faceapi/service-api/models/scrfd/scrfd-modified.onnx",
     "batch_size": 1,
-    "verbose": False
+    "nms_thresh": 0.3,
+    "conf_thresh": 0.35
 }
 
 FACE_ALIGN_CONFIG = {
@@ -25,7 +26,8 @@ FACE_ALIGN_CONFIG = {
 
 FACEID_CONFIG = {
     "url": settings.TRITON_URL,
-    "model_name": "iresnet50",
+    "model_path": "/opt/faceapi/service-api/models/arcface/ms1mv3_r50_dynamic_simplify_cleanup.onnx",
+    "model_name": "arcface",
     "batch_size": 1,
     "verbose": False
 }

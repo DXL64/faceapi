@@ -7,29 +7,38 @@ import traceback
 import cv2
 import numpy as np
 
+import onnxruntime
+
+DEFAULT = 112
 
 class BaseClient:
     def __init__(self, config) -> None:
-        self.url = config["url"]
         self.__model_name = config["model_name"]
-        self.__batch_size = config["batch_size"]
-        self.load_metadata()
+        self.__model_path = config["model_path"]
+        if "scrfd" in config["model_name"]:
+            self.nms_thresh = config["nms_thresh"]
+            self.conf_thresh = config["conf_thresh"]
+        self.load_model()
         self.headers = {
             'Content-Type': 'application/json'
         }
     
-    def load_metadata(self) -> Any:
-        modelmeta_enpoint = f"http://{self.url}/info/{self.__model_name}"
+    def load_model(self) -> Any:
         try:
-            metadata_res = requests.get(modelmeta_enpoint)
-            metadata_res = metadata_res.json()
-            if metadata_res.get("active", False):
-                input_meta = metadata_res.get("input", 0)
-                if input_meta:
-                    width = input_meta["width"]
-                    height = input_meta["height"]
-                    channel = input_meta["channel"]
-                    self._input_shape = [0, height, width, channel]
+            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+            self.session = onnxruntime.InferenceSession(self.__model_path, providers=providers)
+
+            if self.session:
+                self._output_name = []
+                input_meta = self.session.get_inputs()[0]
+                output_meta = self.session.get_outputs()
+                self._input_name = input_meta.name
+                for output in output_meta:
+                    self._output_name.append(output.name)
+                width = input_meta.shape[2]
+                height = input_meta.shape[3]
+                channel = input_meta.shape[1]
+                self._input_shape = [0, int(height), int(width), int(channel)]
             else:
                 raise Exception("Model not found!")
 
@@ -37,18 +46,10 @@ class BaseClient:
             traceback.print_exc()
     
     def infer_batch(self, inputs) -> Any:
-        infer_url = f"http://{self.url}/infer"
+        self.batch_size = inputs.shape[0]
         try:
-            payload = json.dumps({
-                "model_name": self.__model_name,
-                "data": inputs.ravel().astype("uint8").tolist(),
-                "data_type": "uint8",
-                "shape": inputs.shape
-            })
-            response = requests.post(infer_url, headers=self.headers, data=payload)
-            response.raise_for_status()  # Raise an exception for any HTTP error status codes
-            preds = response.json()["outputs"]
-            preds = self.postprocess_batch(preds)
+            outputs = self.session.run(self._output_name, {self._input_name: inputs})
+            preds = self.postprocess_batch(outputs)
             return preds
         except Exception as e:
             traceback.print_exc()
