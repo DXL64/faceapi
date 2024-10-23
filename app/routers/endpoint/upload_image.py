@@ -85,13 +85,14 @@ async def upload_image(item: UploadRequest):
         for face_vector, face_aligned, original_url in zip(face_vectors, face_aligneds, face_ori_url):
             milvusFace = MilvusFaceIDObject(face_id=0, embeddings=face_vector)
             uuid_milvus = milvus_client.insert_face(milvusFace)
-            norm_path = f"upload/{uuid_milvus[0]}_norm.jpg"
+            norm_path = f"{uuid_milvus[0]}_norm.jpg"
 
             assert uuid_milvus, "Insert Milvus failed!"
 
             if minio_is_work:
                 # Send photo to minio
-                img_encode = cv2.imencode(".jpg", face_aligned)[1].tostring()
+                print(face_aligned.shape)
+                img_encode = cv2.imencode(".jpg", np.transpose(face_aligned, (1, 2, 0)))[1].tostring()
                 minio_client.send_obj(img_encode, norm_path)
             else:
                 norm_path = ""

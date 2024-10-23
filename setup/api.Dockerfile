@@ -24,7 +24,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 # Copy app to docker
 # COPY /app/ /opt/vinbigdata/service-api/app
 
-# ENV CONFIG="app/config.json"
+ENV CONFIG="config.json"
 
 # Make RUN commands use the new environment:
 # SHELL ["conda", "run", "-n", "faceapi", "/bin/bash", "-c"]

@@ -52,7 +52,8 @@ dependencies:
     - mysql-connector-python==8.0.16
     - mysqlclient==2.1.1
     - networkx==2.8.8
-    - numpy==1.19.5
+    - onnxruntime==1.19.2
+    - numpy==1.24.0
     - opencv-python==4.5.2.54
     - packaging==21.3
     - pandas==1.4.4

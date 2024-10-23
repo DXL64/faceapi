@@ -9,7 +9,7 @@
 ## DEV
         #    --env-file setup/environments.env \
 docker run -dt --restart always --network=host \
-           -v /etc/hosts:/etc/hosts -v ./app:/opt/faceapi/service-api/ --gpus all \
+           -v /etc/hosts:/etc/hosts -v ./app:/opt/faceapi/service-api/ \
            --name face_api face-api:v1.0 \
-        #    conda run --no-capture-output -n faceapi \
-        #    uvicorn main:app --host 0.0.0.0 --workers 1 --port 30000
+          conda run --no-capture-output -n faceapi \
+          uvicorn main:app --host 0.0.0.0 --workers 1 --port 30000

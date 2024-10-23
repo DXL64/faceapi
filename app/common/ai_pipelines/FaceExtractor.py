@@ -192,7 +192,7 @@ class FaceExtractor:
         for multi_face, cv2_img, ori_shape, path in zip(faces, batch_cv2_imgs, batch_original_shape, image_paths):
             try:
                 if len(multi_face) < 1:
-                    raise FaceException(f"Number face in {path} should be > 1 but got {len(multi_face)}!", path)
+                    logger.info(f"Number face in {path} should be > 1 but got {len(multi_face)}!", path)
                 print(f"Number face in {path}: {len(multi_face)}!")
                 scale = ori_shape[2]
                 for face in multi_face:
@@ -204,8 +204,8 @@ class FaceExtractor:
                     # box, score, class_id, landmark = self.get_biggest_area_face(face)
 
                     box = self.rescale_points(box, scale)
-                    if (box[2] - box[0] < 50 or box[3] - box[1] < 50):
-                        raise FaceException(f"Face in {path} too small: {box[2] - box[0]} x {box[3] - box[1]}", path)
+                    if (box[2] - box[0] < 20 or box[3] - box[1] < 20):
+                        logger.info(f"Face in {path} too small: {box[2] - box[0]} x {box[3] - box[1]}", path)
 
                     landmark = self.rescale_points(np.array(landmark).ravel().tolist(), scale)
                     landmark = np.array(landmark).reshape(5, 2)
@@ -247,10 +247,6 @@ class FaceExtractor:
 
         if run_faceid:
             face_embeddings = self.faceid.infer_batch(batch_aligned_tensors/255)
-            for i in range(4):
-                print(location_of_face[i])
-                print(face_embeddings[i][0:10])
-                    
 
         logger.info(f"Infer_faceid_time: {time.time() - infer_faceid}")
 

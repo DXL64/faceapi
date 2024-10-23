@@ -10,13 +10,13 @@
         },
         "secret_token": "Ub86vFIxAzuk+^2Qz5e7vrbRUQCk*jAS",
         "minio": {
-            "minio_host": null,
-            "minio_port": null,
-            "minio_access_key": null,
-            "minio_secret_key": null,
-            "minio_bucket": null,
-            "minio_endpoint_url": null,
-            "minio_public_endpoint_url": null
+            "minio_host": "0.0.0.0",
+            "minio_port": "9000",
+            "minio_access_key": "adminsample",
+            "minio_secret_key": "passwordsample",
+            "minio_bucket": "faceapi",
+            "minio_endpoint_url": "http://localhost:9000",
+            "minio_public_endpoint_url": "http://localhost:9000"
         },
         "milvus": {
             "milvus_host": "0.0.0.0",
