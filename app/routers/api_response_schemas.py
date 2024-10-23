@@ -10,6 +10,10 @@ class BaseResponse:
         self.request_id = uuid.uuid4()
 
 
+class UrlResponse(BaseResponse):
+    def __init__(self):
+        super(UrlResponse, self).__init__()
+
 class UploadResponse(BaseResponse):
     def __init__(self):
         super(UploadResponse, self).__init__()

@@ -14,33 +14,57 @@ from common.database import crud, models
 from common.database.database import engine, get_db_connection
 from configs.configs import Settings
 from ..api_response_schemas import BaseResponse, ResponseCode, ResponseMessage, MultipleUrlExceptions, UrlException
-from ..api_request_schemas import SearchFaceRequest
+from ..api_request_schemas import MultipleBadField, BadField
 from utils.logging import TimingLog
 from statistics import mode
+from fastapi import File, UploadFile
 
 models.Base.metadata.create_all(bind=engine)
 settings = Settings()
 logger = logging.getLogger(__name__)
 timing_log = TimingLog()
 
-# Search User By Face
-async def search_user_by_face(item: SearchFaceRequest):
+def allowed_file(filename: str) -> bool:
+        ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def precheck(file):
+    list_exceptions = []
+    if file is None:
+        list_exceptions.append(BadField(f"File is invalid"))
+    if not allowed_file(file.filename):
+        list_exceptions.append(BadField(f"File is invalid! Only take png, jpg or jpeg"))
+    if len(list_exceptions) > 0:
+        raise MultipleBadField(list_exceptions)
+    
+# Search User By Image File
+async def search_user_by_file(file: UploadFile = File(...), numberRecords: int = 1):
+    ## required by QC
+    try:
+        precheck(file)
+    except Exception as e:
+        if isinstance(e, MultipleBadField):
+            response.code = ResponseCode.BAD_REQUEST
+            response.data = [
+                {
+                    "description": e.messages
+                }
+            ]
+        response.message = ResponseMessage(response.code)
+        return JSONResponse(jsonable_encoder(response))
+    
     response = BaseResponse()
     milvus_client = MilvusClient()
     extractor = FaceExtractor()
     db = get_db_connection()
 
-    logger.info(f"Request {response.request_id}: {item}")
-
     try:
-        res = requests.get(item.imageUrl)
-        if res.status_code != 200:
-            raise MultipleUrlExceptions([UrlException(f"{item.imageUrl} invalid!", item.imageUrl)])
+        contents = await file.read()
 
-        img_bytes = res.content
-        face_embeddings, _ = extractor.extract_feature_batch([img_bytes], [item.imageUrl])
+        img_bytes = contents
+        face_embeddings, _ = extractor.extract_feature_batch([img_bytes], [""])
 
-        matching_faces = milvus_client.search_topK_face(face_embeddings, topK=item.numberRecords)[0]
+        matching_faces = milvus_client.search_topK_face(face_embeddings, topK=numberRecords)[0]
         if (not matching_faces) or (matching_faces[0] == -1):
             response.data = [
                 {

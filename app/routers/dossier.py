@@ -20,8 +20,13 @@ settings = Settings()
 logger = logging.getLogger(__name__)
 timing_log = TimingLog()
 
+
+from .endpoint.url_image import url_image
+router.post("")(url_image)
+
 from .endpoint.upload_image import upload_image
-router.post("")(upload_image)
+router.post("/upload")(upload_image)
+
 # from .endpoint.enroll import enroll
 # router.post("")(enroll)
 
@@ -48,6 +53,9 @@ router.put("")(get_list_registers)
 
 from .endpoint.search_user_by_face import search_user_by_face
 router.put("/searchRelativeFace/")(search_user_by_face)
+
+from .endpoint.search_user_by_file import search_user_by_file
+router.put("/searchFile/")(search_user_by_file)
 
 # from .endpoint.search_user_by_fhd_image import search_user_by_fhd_image
 # router.put("/recognize/")(search_user_by_fhd_image)

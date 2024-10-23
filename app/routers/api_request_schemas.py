@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from utils.utils import *
 import numpy as np
 from configs.configs import Settings 
+from fastapi import File, UploadFile, HTTPException
+
 
 settings = Settings()
 class BadField(Exception):
@@ -25,7 +27,7 @@ class BaseRequest(BaseModel):
     pass
 
 
-class UploadRequest(BaseRequest):
+class UrlRequest(BaseRequest):
     imageUrls: list[str]
 
     def precheck(self):
@@ -41,7 +43,6 @@ class UploadRequest(BaseRequest):
 
         if len(list_exceptions) > 0:
             raise MultipleBadField(list_exceptions)
-
 
 class UpdateRequest(BaseRequest):
     faceId: Optional[str]

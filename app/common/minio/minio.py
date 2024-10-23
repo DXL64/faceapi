@@ -22,6 +22,10 @@ class MinioClient:
     def send_obj(self, obj: AnyStr, path: str):
         self.resource.Object(f"{settings.MINIO_BUCKET}", path).put(Body=obj)
 
+    def send_obj_with_bucket(self, obj: AnyStr, path: str, bucket: str):
+        res = self.resource.Object(f"{bucket}", path).put(Body=obj)
+        print(res)
+
     def load_obj(self, path):
         bytes_buffer = self.resource.Object(f"{settings.MINIO_BUCKET}", path).get()["Body"].read()
         return bytes_buffer

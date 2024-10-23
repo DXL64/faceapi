@@ -17,35 +17,25 @@ from common.milvus.milvus import MilvusClient, MilvusFaceIDObject
 from common.database import crud, models
 from common.database.database import engine, get_db_connection
 from configs.configs import Settings
-from ..api_response_schemas import UploadResponse, ResponseCode, ResponseMessage, MultipleUrlExceptions, UrlException
-from ..api_request_schemas import MultipleBadField, BadField
+from ..api_response_schemas import UrlResponse, ResponseCode, ResponseMessage, MultipleUrlExceptions, UrlException
+from ..api_request_schemas import UrlRequest, MultipleBadField
 from common.minio import MinioClient
 from utils.logging import TimingLog
 from statistics import mode
-from fastapi import File, UploadFile
 
 models.Base.metadata.create_all(bind=engine)
 settings = Settings()
 logger = logging.getLogger(__name__)
 timing_log = TimingLog()
 
-def allowed_file(filename: str) -> bool:
-        ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def precheck(file):
-    list_exceptions = []
-    if file is None:
-        list_exceptions.append(BadField(f"File is invalid"))
-    if not allowed_file(file.filename):
-        list_exceptions.append(BadField(f"File is invalid! Only take png, jpg or jpeg"))
-    if len(list_exceptions) > 0:
-        raise MultipleBadField(list_exceptions)
-
-async def upload_image(file: UploadFile = File(...)):
+async def url_image(item: UrlRequest):
+    face_extractor = FaceExtractor()
+    response = UrlResponse()
+    logger.info(f"Request {response.request_id}: {item}")
+    response.code = None
     ## required by QC
     try:
-        precheck(file)
+        item.precheck()
     except Exception as e:
         if isinstance(e, MultipleBadField):
             response.code = ResponseCode.BAD_REQUEST
@@ -56,12 +46,15 @@ async def upload_image(file: UploadFile = File(...)):
             ]
         response.message = ResponseMessage(response.code)
         return JSONResponse(jsonable_encoder(response))
-    
-    face_extractor = FaceExtractor()
-    response = UploadResponse()
-    response.code = None
 
+    imagesUrls = item.imageUrls
     
+    start = time.time()
+    milvus_client = MilvusClient()
+    logger.info(f"Milvus init time: {time.time() - start}")
+
+    db = get_db_connection()
+    face_ids = []
     try:
         minio_client = MinioClient()
         minio_is_work = True
@@ -69,32 +62,21 @@ async def upload_image(file: UploadFile = File(...)):
     except: 
         minio_is_work = False
         logger.error(f"Minio is not working!")
-    try:
-        contents = await file.read()
-        nparr = np.frombuffer(contents, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-        if minio_is_work:
-            filename = f"{uuid.uuid4()}.jpg"
-            imagesUrls = [f"{settings.MINIO_ENDPOINT_URL}/upload/{filename}"]
-            print(imagesUrls)
-            img_encode = cv2.imencode(".jpg", img)[1].tostring()
-            minio_client.send_obj_with_bucket(img_encode, filename, 'upload')
-    except Exception:
-        response.code = ResponseCode.BAD_REQUEST
-        response.message = ResponseMessage(response.code)
-        return JSONResponse(jsonable_encoder(response))
-
-    start = time.time()
-    milvus_client = MilvusClient()
-    logger.info(f"Milvus init time: {time.time() - start}")
-
-    db = get_db_connection()
-    face_ids = []
     
-    list_img_bytes = [contents]
+    list_img_bytes = []
+    url_exceptions = []
 
     try:
+        for img_url in imagesUrls:
+            res = requests.get(img_url)
+            if res.status_code == 200:
+                list_img_bytes.append(res.content)
+            else:
+                url_exceptions.append(UrlException(f"{img_url} invalid!", img_url))
+
+        if len(url_exceptions) > 0:
+            raise MultipleUrlExceptions(url_exceptions)
+
         start = time.time()
         face_vectors, face_aligneds, face_ori_url = face_extractor.extract_multi_feature_batch(list_img_bytes, imagesUrls)
         logger.info(f"Extractor: {time.time() - start}")
@@ -169,4 +151,4 @@ async def upload_image(file: UploadFile = File(...)):
         logger.info("Closed database connection!")
         db.close()
         response.message = ResponseMessage(response.code)
-    return JSONResponse(jsonable_encoder(response))
+        return JSONResponse(jsonable_encoder(response))
